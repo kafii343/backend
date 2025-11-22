@@ -22,27 +22,38 @@ const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // Configure CORS to allow Midtrans
+// const corsOptions = {
+//   origin: [
+//     "http://localhost:8080",
+//     "https://localhost:8080",
+//     "http://localhost:5000",
+//     "https://localhost:5000",
+//     "http://localhost:3000",
+//     "https://app.sandbox.midtrans.com",
+//     "https://simulator.sandbox.midtrans.com"
+//   ],
+//   credentials: true,
+//   optionsSuccessStatus: 200
+// };
+
+// CONFIG CORS AND CONVERT DATA TO JSON
+const app = express();
+
+// CORS configuration allowing both development and production origins
 const corsOptions = {
   origin: [
-    "http://localhost:8080",
-    "https://localhost:8080",
-    "http://localhost:5000",
-    "https://localhost:5000",
-    "http://localhost:3000",
-    "https://app.sandbox.midtrans.com",
-    "https://simulator.sandbox.midtrans.com"
+    "http://localhost:8080",    // Vite default port
+    "http://localhost:5173",    // Vite default port
+    "http://localhost:3000",    // React dev server
+    "https://frontend-navy-xi-92.vercel.app",  // Vercel production
+    "https://backend-rho-ten-82.vercel.app"   // Backend URL if needed
   ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// CONFIG CORS AND CONVERT DATA TO JSON
-const app = express();
-app.use(cors({
-  origin: ["frontend-navy-xi-92.vercel.app"], 
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(uploadsDir));
