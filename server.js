@@ -45,6 +45,8 @@ const corsOptions = {
     "http://localhost:8080",    // Vite default port
     "http://localhost:5173",    // Vite default port
     "http://localhost:3000",    // React dev server
+    "https://app.sandbox.midtrans.com",
+    "https://simulator.sandbox.midtrans.com",
     "https://frontend-navy-xi-92.vercel.app",  // Vercel production
     "https://backend-rho-ten-82.vercel.app"   // Backend URL if needed
   ],
