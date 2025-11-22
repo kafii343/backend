@@ -1,14 +1,19 @@
 const midtransClient = require("midtrans-client");
 
 // Initialize Midtrans client with better error handling
+console.log("MIDTRANS_SERVER_KEY:", process.env.MIDTRANS_SERVER_KEY);
+console.log("MIDTRANS_CLIENT_KEY:", process.env.MIDTRANS_CLIENT_KEY);
+console.log("LENGTH server:", process.env.MIDTRANS_SERVER_KEY?.length);
+console.log("LENGTH client:", process.env.MIDTRANS_CLIENT_KEY?.length);
+
 const snap = new midtransClient.Snap({
-  isProduction: process.env.NODE_ENV === 'production',
+  isProduction: false,
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
 
 const coreApi = new midtransClient.CoreApi({
-  isProduction: process.env.NODE_ENV === 'production',
+  isProduction: false,
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
