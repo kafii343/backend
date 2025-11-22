@@ -14,9 +14,8 @@ const midtransClient = require("midtrans-client");
 const fsPromises = require("fs").promises;
 require("dotenv").config();
 
-const app = express();
-const PORT = process.env.API_PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret";
+
+
 
 // Ensure uploads folder
 const uploadsDir = path.join(__dirname, "uploads");
@@ -37,10 +36,16 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
+// CONFIG CORS AND CONVERT DATA TO JSON
+const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(uploadsDir));
+
+const PORT = process.env.API_PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret";
+
 
 // Multer config
 const storage = multer.diskStorage({
@@ -50,21 +55,51 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Postgres pool
-const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || "cartenz_db",
-  user: process.env.DB_USER || "cartenz_admin",
-  password: process.env.DB_PASSWORD || "cartenz_secure_2024",
-});
+// Postgres pool CONFIG DB
+const isProduction = process.env.NODE_ENV === "production";
+
+const pool = isProduction
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    })
+  : new Pool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
+
 pool.connect((err, client, release) => {
-  if (err) console.error("DB connection failed:", err.stack);
-  else {
-    console.log("✅ DB connected");
+  if (err) {
+    console.error("❌ DB Connection Failed:", err.stack);
+  } else {
+    console.log("✅ DB Connected");
     release();
   }
 });
+
+
+// const pool = new Pool({
+
+//   connectionString: process.env.DATABASE_URL,
+//   ssl: {
+//     rejectUnauthorized: false
+//   },
+//   host: process.env.DB_HOST || "localhost",
+//   port: process.env.DB_PORT || 5432,
+//   database: process.env.DB_NAME || "cartenz_db",
+//   user: process.env.DB_USER || "cartenz_admin",
+//   password: process.env.DB_PASSWORD || "cartenz_secure_2024",
+// });
+// pool.connect((err, client, release) => {
+//   if (err) console.error("DB connection failed:", err.stack);
+//   else {
+//     console.log("✅ DB connected");
+//     release();
+//   }
+// });
 
 // HTTP + Socket.IO
 const server = http.createServer(app);
@@ -1678,4 +1713,4 @@ app.delete("/api/admin/bookings/:id", adminOnly, async (req, res) => {
 });
 
 // ---------- Start Server ----------
-server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
