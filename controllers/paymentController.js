@@ -41,7 +41,7 @@ const createTransaction = async (pool, req, res) => {
     console.log("Request body:", req.body);
     console.log("Environment check:", {
       hasMidtransServerKey: !!process.env.MIDTRANS_SERVER_KEY,
-      nodeEnv: process.env.NODE_ENV,
+      nodeEnv: process.env.NODE_ENV === 'production', 
       midtransServerKeyLength: process.env.MIDTRANS_SERVER_KEY ? process.env.MIDTRANS_SERVER_KEY.length : 0
     });
     // DEBUG LOGGING - END
