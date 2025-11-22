@@ -38,7 +38,11 @@ const corsOptions = {
 
 // CONFIG CORS AND CONVERT DATA TO JSON
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: ["frontend-navy-xi-92.vercel.app"], 
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(uploadsDir));
