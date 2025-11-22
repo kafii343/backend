@@ -1463,7 +1463,7 @@ app.get("/api/dashboard/stats", async (req, res) => {
 // Payment routes - We need to handle raw JSON for Midtrans webhook
 const createPaymentRoutes = require('./routes/paymentRoutes');
 
-// Middleware to handle raw body for webhook
+// Middleware to handle raw body for webhook - applies only to webhook endpoint
 app.use('/api/payment/webhook', express.raw({type: 'application/json'}), (req, res, next) => {
   console.log('Received Midtrans webhook request');
   // Parse the raw body as JSON only for webhook endpoint

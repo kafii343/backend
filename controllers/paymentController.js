@@ -33,7 +33,18 @@ const sanitizeNumericValue = (value) => {
 // CREATE TRANSACTION
 const createTransaction = async (pool, req, res) => {
   try {
-    console.log("Received payload for transaction creation:", req.body);
+    // DEBUG LOGGING - START (remove after fixing the issue)
+    console.log("=== CREATE TRANSACTION DEBUG START ===");
+    console.log("Request method:", req.method);
+    console.log("Request path:", req.path);
+    console.log("Request headers:", req.headers);
+    console.log("Request body:", req.body);
+    console.log("Environment check:", {
+      hasMidtransServerKey: !!process.env.MIDTRANS_SERVER_KEY,
+      nodeEnv: process.env.NODE_ENV,
+      midtransServerKeyLength: process.env.MIDTRANS_SERVER_KEY ? process.env.MIDTRANS_SERVER_KEY.length : 0
+    });
+    // DEBUG LOGGING - END
 
     const { booking_id, order_id, amount, customer_email, customer_name, item_details } = req.body;
 
@@ -126,6 +137,14 @@ const createTransaction = async (pool, req, res) => {
       throw new Error("Invalid order_id provided: " + orderId);
     }
 
+    // DEBUG LOGGING - Midtrans request preparation (remove after fixing)
+    console.log("Midtrans client config:", {
+      isProduction: process.env.NODE_ENV === 'production',
+      hasServerKey: !!process.env.MIDTRANS_SERVER_KEY,
+      serverKeyLength: process.env.MIDTRANS_SERVER_KEY ? process.env.MIDTRANS_SERVER_KEY.length : 0
+    });
+    // DEBUG LOGGING - END
+
     // Create transaction
     const transaction = await snap.createTransaction(parameter);
 
@@ -162,6 +181,16 @@ const createTransaction = async (pool, req, res) => {
       // Don't fail the entire transaction just because we couldn't update booking status
     }
 
+    // DEBUG LOGGING - Response preparation (remove after fixing)
+    console.log("Sending response to client:", {
+      success: true,
+      token: transaction.token ? 'TOKEN_EXISTS' : 'NO_TOKEN',
+      redirect_url: transaction.redirect_url ? 'URL_EXISTS' : 'NO_URL',
+      order_id: orderId
+    });
+    console.log("=== CREATE TRANSACTION DEBUG END ===");
+    // DEBUG LOGGING - END
+
     res.status(200).json({
       success: true,
       token: transaction.token,
@@ -170,12 +199,18 @@ const createTransaction = async (pool, req, res) => {
     });
 
   } catch (error) {
-    console.error("Midtrans error details:", {
+    // DEBUG LOGGING - Error (remove after fixing)
+    console.error("=== CREATE TRANSACTION ERROR DEBUG START ===");
+    console.error("Error details:", {
       message: error.message,
       name: error.name,
       code: error.code,
       stack: error.stack,
+      type: typeof error,
+      isMidtransError: error.name && error.name.includes('MidtransError')
     });
+    console.error("=== CREATE TRANSACTION ERROR DEBUG END ===");
+    // DEBUG LOGGING - END
 
     if (error.message.toLowerCase().includes("access denied") || error.message.toLowerCase().includes("unauthorized")) {
       return res.status(401).json({
